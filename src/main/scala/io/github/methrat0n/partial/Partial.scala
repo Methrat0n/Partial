@@ -15,7 +15,7 @@ object PartialImpl {
       def optionize(name: TypeName, params: Seq[ValDef]) =
         c.Expr[Any]({
           val optionalParams = params.map { valDef =>
-            q"${valDef.name}: Option[${valDef.tpe}]"
+              q"${valDef.name}: Option[${valDef.tpe}]"
           }
           val optionizedCaseClass = TypeName(s"Partial$name")
           q"""
@@ -27,13 +27,8 @@ object PartialImpl {
     annottees.map(_.tree) match {
       case List(q"case class $name(..$params)")       => optionize(name, params)
       case List(q"final case class $name(..$params)") => optionize(name, params)
+      case _ => c.abort(c.enclosingPosition, "selection is not a simple POJO")
     }
   }
-}
 
-/*
-/*val optionalParams = params.map {
-            case valDef if !(c.typecheck(valDef.tpt).tpe.typeConstructor =:= typeOf[Option[_]].typeConstructor) =>
-              q"${valDef.name}: Option[${valDef.tpe}]"
-          }*/
- */
+}
